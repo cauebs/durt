@@ -1,5 +1,6 @@
 use std::io;
 use std::path::{Path, PathBuf};
+use std::error::Error;
 
 extern crate walkdir;
 use walkdir::WalkDir;
@@ -56,7 +57,7 @@ struct Opt {
     reverse: bool,
 }
 
-fn main() -> io::Result<()> {
+fn main() -> Result<(), Box<dyn Error>> {
     let opt = Opt::from_args();
     let num_paths = opt.paths.len();
 
@@ -79,11 +80,10 @@ fn main() -> io::Result<()> {
     }
 
     for (path, size) in data {
-        // it's safe to unwrap here because the will never be negative
         let printable_size = if opt.binary {
-            size.file_size(BINARY).unwrap()
+            size.file_size(BINARY)?
         } else {
-            size.file_size(DECIMAL).unwrap()
+            size.file_size(DECIMAL)?
         };
 
         if num_paths == 1 {
