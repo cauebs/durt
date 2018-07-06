@@ -1,6 +1,6 @@
+use std::error::Error;
 use std::io;
 use std::path::{Path, PathBuf};
-use std::error::Error;
 
 extern crate walkdir;
 use walkdir::WalkDir;
@@ -89,12 +89,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     };
 
     for entry in entries {
-        let formatted_size = match formatter_function(entry.size as f64) {
-            Standalone(s) => format!("{:.2}  B", s),
+        let mut formatted_size = match formatter_function(entry.size as f64) {
+            Standalone(s) => format!("{} B", s as u64),
             Prefixed(p, s) => format!("{:.2} {}B", s, p),
         };
 
-        println!(" {:>10} {}", formatted_size, entry.path.display());
+        println!(" {:>10}  {}", formatted_size, entry.path.display());
     }
 
     Ok(())
