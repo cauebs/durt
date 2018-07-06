@@ -2,7 +2,7 @@
 
 ## Installation
 ```
-~ $ cargo install --git https://github.com/cauebs/durt
+~ $ cargo install durt
 ```
 
 ## Usage
@@ -11,7 +11,7 @@ USAGE:
     durt [FLAGS] [paths]...
 
 FLAGS:
-    -b, --binary     Use binary prefixes (KiB, MiB, GiB, etc). Sizes will be divided by 1024 instead of 1000.
+    -b, --binary     Use binary prefixes (kiB, MiB, GiB, etc). Sizes will be divided by 1024 instead of 1000.
     -p, --by-path    Sort the output lines by path, instead of by size.
     -h, --help       Prints help information
     -r, --reverse    Reverse the order of the output lines.
@@ -24,14 +24,11 @@ ARGS:
 
 ## Example
 ```
-~/durt $ durt * -s
-          168 B Cargo.toml
-          816 B README.md
-        6.47 KB src
-        9.41 KB Cargo.lock
-      206.24 MB target
+~/durt $ durt -s *
+      473 B  Cargo.toml
+      934 B  README.md
+    1.08 kB  LICENSE
+    6.55 kB  src
+    9.79 kB  Cargo.lock
+  232.46 MB  target
 ```
-
-## Disclaimer
-This was just an experiment and probably won't be maintained.
-For long term usage, you might want to try [Dust](https://github.com/bootandy/dust/).
