@@ -1,7 +1,15 @@
 [package]
+version = "0.1.1"
 name = "durt"
-version = "0.1.0"
+description = "Command line tool for calculating the size of files and directories"
+
+repository = "https://github.com/cauebs/durt"
 authors = ["Cauê Baasch de Souza <cauebs@pm.me>"]
+license = "GPL-3.0+"
+readme = "README.md"
+
+keywords = ["cli", "file", "size", "disk", "usage"]
+categories = ["command-line-interface", "command-line-utilities", "filesystem"]
 
 [dependencies]
 structopt = "0.2.10"
