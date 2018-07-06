@@ -10,9 +10,8 @@ extern crate structopt;
 use structopt::clap::AppSettings::{ArgRequiredElseHelp, ColoredHelp};
 use structopt::StructOpt;
 
-extern crate humansize;
-use humansize::file_size_opts::{BINARY, DECIMAL};
-use humansize::FileSize;
+extern crate number_prefix;
+use number_prefix::{binary_prefix, decimal_prefix, Prefixed, Standalone};
 
 fn recursive_size(path: &Path) -> io::Result<u64> {
     let mut total_size = 0;
@@ -57,40 +56,45 @@ struct Opt {
     reverse: bool,
 }
 
+struct Entry {
+    path: PathBuf,
+    size: u64,
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let opt = Opt::from_args();
-    let num_paths = opt.paths.len();
 
-    let mut data = Vec::new();
+    let mut entries = Vec::new();
     for path in opt.paths {
         let size = recursive_size(&path)?;
-        data.push((path, size))
+        entries.push(Entry { path, size });
     }
 
     if opt.sort {
         if opt.by_path {
-            data.sort();
+            entries.sort_by_key(|e| e.path.clone());
         } else {
-            data.sort_by_key(|t| t.1);
+            entries.sort_by_key(|e| e.size);
         }
     }
 
     if opt.reverse {
-        data.reverse();
+        entries.reverse();
     }
 
-    for (path, size) in data {
-        let printable_size = if opt.binary {
-            size.file_size(BINARY)?
-        } else {
-            size.file_size(DECIMAL)?
+    let formatter_function = if opt.binary {
+        binary_prefix
+    } else {
+        decimal_prefix
+    };
+
+    for entry in entries {
+        let formatted_size = match formatter_function(entry.size as f64) {
+            Standalone(s) => format!("{:.2}  B", s),
+            Prefixed(p, s) => format!("{:.2} {}B", s, p),
         };
 
-        if num_paths == 1 {
-            println!("{}", printable_size);
-        } else {
-            println!("{:>15} {}", printable_size, path.display());
-        }
+        println!(" {:>10} {}", formatted_size, entry.path.display());
     }
 
     Ok(())
