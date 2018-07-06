@@ -1,4 +1,5 @@
 # durt
+Command line tool for calculating the size of files and directories
 
 ## Installation
 ```
