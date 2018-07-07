@@ -12,11 +12,12 @@ USAGE:
     durt [FLAGS] [paths]...
 
 FLAGS:
-    -b, --binary     Use binary prefixes (kiB, MiB, GiB, etc). Sizes will be divided by 1024 instead of 1000.
+    -b, --binary     Use binary prefixes (KiB, MiB, GiB, etc). Sizes will be divided by 1024 instead of 1000.
     -p, --by-path    Sort the output lines by path, instead of by size.
     -h, --help       Prints help information
     -r, --reverse    Reverse the order of the output lines.
     -s, --sort       Print lines in ascending order. If --by-path is not passed, the size will be used.
+    -t, --total      Print a total at the end
     -V, --version    Prints version information
 
 ARGS:
@@ -25,11 +26,13 @@ ARGS:
 
 ## Example
 ```
-~/durt $ durt -s *
-      473 B  Cargo.toml
-      934 B  README.md
-    1.08 kB  LICENSE
-    6.55 kB  src
-    9.79 kB  Cargo.lock
-  232.46 MB  target
+~/durt $ durt -st *
+     478 B  Cargo.toml
+     908 B  README.md
+   7.08 kB  src
+   9.79 kB  Cargo.lock
+  35.15 kB  LICENSE
+ 569.59 MB  target
+ ---------
+ 569.64 MB
 ```

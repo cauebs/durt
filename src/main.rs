@@ -37,6 +37,10 @@ struct Opt {
     #[structopt(parse(from_os_str))]
     paths: Vec<PathBuf>,
 
+    /// Print a total at the end
+    #[structopt(short = "t", long = "total")]
+    total: bool,
+
     /// Use binary prefixes (KiB, MiB, GiB, etc).
     /// Sizes will be divided by 1024 instead of 1000.
     #[structopt(short = "b", long = "binary")]
@@ -61,6 +65,27 @@ struct Entry {
     size: u64,
 }
 
+fn format_size(size: u64, binary: bool) -> String {
+    let size = size as f64;
+
+    let prefixed = if binary {
+        binary_prefix(size)
+    } else {
+        decimal_prefix(size)
+    };
+
+    let formatted = match prefixed {
+        Standalone(s) => format!("{} B", s as u64),
+        Prefixed(p, s) => format!("{:.2} {}B", s, p),
+    };
+
+    if binary {
+        format!(" {:>10}", formatted)
+    } else {
+        format!(" {:>9}", formatted)
+    }
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let opt = Opt::from_args();
 
@@ -82,19 +107,18 @@ fn main() -> Result<(), Box<dyn Error>> {
         entries.reverse();
     }
 
-    let formatter_function = if opt.binary {
-        binary_prefix
-    } else {
-        decimal_prefix
-    };
+    for entry in entries.iter() {
+        println!(
+            "{}  {}",
+            format_size(entry.size, opt.binary),
+            entry.path.display(),
+        );
+    }
 
-    for entry in entries {
-        let mut formatted_size = match formatter_function(entry.size as f64) {
-            Standalone(s) => format!("{} B", s as u64),
-            Prefixed(p, s) => format!("{:.2} {}B", s, p),
-        };
-
-        println!(" {:>10}  {}", formatted_size, entry.path.display());
+    if opt.total {
+        println!(" {}", "-".repeat(if opt.binary { 10 } else { 9 }));
+        let total_size = entries.iter().map(|e| e.size).sum();
+        println!("{}", format_size(total_size, opt.binary));
     }
 
     Ok(())
