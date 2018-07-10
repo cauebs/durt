@@ -7,7 +7,7 @@ use walkdir::WalkDir;
 
 #[macro_use]
 extern crate structopt;
-use structopt::clap::AppSettings::{ArgRequiredElseHelp, ColoredHelp};
+use structopt::clap::AppSettings::{ArgRequiredElseHelp, ColoredHelp, DeriveDisplayOrder};
 use structopt::StructOpt;
 
 extern crate number_prefix;
@@ -31,7 +31,9 @@ fn recursive_size(path: &Path) -> io::Result<u64> {
 }
 
 #[derive(StructOpt)]
-#[structopt(raw(setting = "ColoredHelp", setting = "ArgRequiredElseHelp"))]
+#[structopt(raw(
+    settings = "&[ColoredHelp, ArgRequiredElseHelp, DeriveDisplayOrder]",
+))]
 struct Opt {
     /// Path to files or directories
     #[structopt(parse(from_os_str))]
