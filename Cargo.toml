@@ -1,5 +1,5 @@
 [package]
-version = "0.3.0"
+version = "0.4.0"
 name = "durt"
 description = "Command line tool for calculating the size of files and directories"
 

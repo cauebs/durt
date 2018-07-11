@@ -9,7 +9,7 @@ Command line tool for calculating the size of files and directories
 ## Usage
 ```
 USAGE:
-    durt [FLAGS] [paths]...
+    durt [FLAGS] [OPTIONS] [paths]...
 
 FLAGS:
     -b, --binary        Use binary prefixes (KiB, MiB, GiB, etc).
@@ -22,6 +22,9 @@ FLAGS:
     -r, --reverse       Reverse the order of the output lines.
     -h, --help          Prints help information
     -V, --version       Prints version information
+
+OPTIONS:
+    -m, --min <minimum_percentage>    Only show items with at least <minimum_percentage>
 
 ARGS:
     <paths>...    Path to files or directories
