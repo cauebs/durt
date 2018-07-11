@@ -12,13 +12,16 @@ USAGE:
     durt [FLAGS] [paths]...
 
 FLAGS:
-    -b, --binary     Use binary prefixes (KiB, MiB, GiB, etc). Sizes will be divided by 1024 instead of 1000.
-    -p, --by-path    Sort the output lines by path, instead of by size.
-    -h, --help       Prints help information
-    -r, --reverse    Reverse the order of the output lines.
-    -s, --sort       Print lines in ascending order. If --by-path is not passed, the size will be used.
-    -t, --total      Print a total at the end
-    -V, --version    Prints version information
+    -b, --binary        Use binary prefixes (KiB, MiB, GiB, etc).
+                        Sizes will be divided by 1024 instead of 1000.
+    -P, --percentage    Show the percentage for each item, relative to the total.
+    -t, --total         Print the total at the end.
+    -s, --sort          Print lines in ascending order.
+                        If --by-path is not passed, the size will be used.
+    -p, --by-path       Sort the output lines by path, instead of by size.
+    -r, --reverse       Reverse the order of the output lines.
+    -h, --help          Prints help information
+    -V, --version       Prints version information
 
 ARGS:
     <paths>...    Path to files or directories
