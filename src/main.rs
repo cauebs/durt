@@ -42,15 +42,19 @@ struct Opt {
     /// Use binary prefixes (KiB, MiB, GiB, etc).
     /// {n}Sizes will be divided by 1024 instead of 1000.
     #[structopt(short = "b", long = "binary")]
-    binary: bool,
+    use_binary_prefixes: bool,
 
     /// Show the percentage for each item, relative to the total.
     #[structopt(short = "P", long = "percentage")]
-    percentage: bool,
+    show_percentages: bool,
+
+    /// Only show items with at least <minimum_percentage>
+    #[structopt(short = "m", long = "min")]
+    minimum_percentage: Option<f64>,
 
     /// Print the total at the end.
     #[structopt(short = "t", long = "total")]
-    total: bool,
+    show_total: bool,
 
     /// Print lines in ascending order.
     /// {n}If --by-path is not passed, the size will be used.
@@ -59,11 +63,11 @@ struct Opt {
 
     /// Sort the output lines by path, instead of by size.
     #[structopt(short = "p", long = "by-path")]
-    by_path: bool,
+    sort_by_path: bool,
 
     /// Reverse the order of the output lines.
     #[structopt(short = "r", long = "reverse")]
-    reverse: bool,
+    reverse_order: bool,
 }
 
 struct Entry {
@@ -92,12 +96,6 @@ fn format_size(size: u64, binary: bool) -> String {
     }
 }
 
-fn format_percentage(part: u64, total: u64) -> String {
-    let ratio = part as f64 / total as f64;
-    let percentage = (ratio * 100.0 * 100.0).round() / 100.0;
-    format!("{:>5}%", percentage)
-}
-
 fn main() -> Result<(), Box<dyn Error>> {
     let opt = Opt::from_args();
 
@@ -111,28 +109,35 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     if opt.sort {
-        if opt.by_path {
+        if opt.sort_by_path {
             entries.sort_by_key(|e| e.path.clone());
         } else {
             entries.sort_by_key(|e| e.size);
         }
     }
 
-    if opt.reverse {
+    if opt.reverse_order {
         entries.reverse();
     }
 
     for entry in entries.iter() {
-        print!("{}  ", format_size(entry.size, opt.binary));
-        if opt.percentage {
-            print!("({})  ", format_percentage(entry.size, total_size));
+        let percentage = 100.0 * entry.size as f64 / total_size as f64;
+
+        match opt.minimum_percentage {
+            Some(p) if percentage < p => continue,
+            _ => (),
+        }
+
+        print!("{}  ", format_size(entry.size, opt.use_binary_prefixes));
+        if opt.show_percentages {
+            print!("({})  ", format!("{:>5.2}%", percentage));
         }
         println!("{:>3}", entry.path.display());
     }
 
-    if opt.total {
-        println!(" {}", "-".repeat(if opt.binary { 10 } else { 9 }));
-        println!("{}", format_size(total_size, opt.binary));
+    if opt.show_total {
+        println!(" {}", "-".repeat(if opt.use_binary_prefixes { 10 } else { 9 }));
+        println!("{}", format_size(total_size, opt.use_binary_prefixes));
     }
 
     Ok(())
