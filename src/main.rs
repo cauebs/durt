@@ -39,17 +39,21 @@ struct Opt {
     #[structopt(parse(from_os_str))]
     paths: Vec<PathBuf>,
 
-    /// Print a total at the end
-    #[structopt(short = "t", long = "total")]
-    total: bool,
-
     /// Use binary prefixes (KiB, MiB, GiB, etc).
-    /// Sizes will be divided by 1024 instead of 1000.
+    /// {n}Sizes will be divided by 1024 instead of 1000.
     #[structopt(short = "b", long = "binary")]
     binary: bool,
 
+    /// Show the percentage for each item, relative to the total.
+    #[structopt(short = "P", long = "percentage")]
+    percentage: bool,
+
+    /// Print the total at the end.
+    #[structopt(short = "t", long = "total")]
+    total: bool,
+
     /// Print lines in ascending order.
-    /// If --by-path is not passed, the size will be used.
+    /// {n}If --by-path is not passed, the size will be used.
     #[structopt(short = "s", long = "sort")]
     sort: bool,
 
@@ -88,12 +92,21 @@ fn format_size(size: u64, binary: bool) -> String {
     }
 }
 
+fn format_percentage(part: u64, total: u64) -> String {
+    let ratio = part as f64 / total as f64;
+    let percentage = (ratio * 100.0 * 100.0).round() / 100.0;
+    format!("{:>5}%", percentage)
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let opt = Opt::from_args();
 
     let mut entries = Vec::new();
+    let mut total_size = 0;
+
     for path in opt.paths {
         let size = recursive_size(&path)?;
+        total_size += size;
         entries.push(Entry { path, size });
     }
 
@@ -110,16 +123,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     for entry in entries.iter() {
-        println!(
-            "{}  {}",
-            format_size(entry.size, opt.binary),
-            entry.path.display(),
-        );
+        print!("{}  ", format_size(entry.size, opt.binary));
+        if opt.percentage {
+            print!("({})  ", format_percentage(entry.size, total_size));
+        }
+        println!("{:>3}", entry.path.display());
     }
 
     if opt.total {
         println!(" {}", "-".repeat(if opt.binary { 10 } else { 9 }));
-        let total_size = entries.iter().map(|e| e.size).sum();
         println!("{}", format_size(total_size, opt.binary));
     }
 
