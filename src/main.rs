@@ -1,4 +1,8 @@
+use std::fmt::Display;
 use std::path::{Path, PathBuf};
+
+extern crate ansi_term;
+use ansi_term::Colour;
 
 extern crate walkdir;
 use walkdir::WalkDir;
@@ -10,6 +14,12 @@ use structopt::StructOpt;
 
 extern crate number_prefix;
 
+fn print_error(error: impl Display) {
+    let message = format!("{}", error);
+    let message = Colour::Red.paint(message);
+    eprintln!("{}", message);
+}
+
 fn recursive_size(path: &Path) -> u64 {
     WalkDir::new(path)
         .into_iter()
@@ -17,7 +27,7 @@ fn recursive_size(path: &Path) -> u64 {
             let path = match &entry {
                 Ok(entry) => entry.path(),
                 Err(error) => {
-                    eprintln!("{}", error);
+                    print_error(error);
                     return None;
                 }
             };
@@ -26,7 +36,7 @@ fn recursive_size(path: &Path) -> u64 {
             let size = match path.symlink_metadata() {
                 Ok(metadata) => metadata.len(),
                 Err(error) => {
-                    eprintln!("{}", error);
+                    print_error(error);
                     return None;
                 }
             };
@@ -89,8 +99,8 @@ fn format_size(size: u64, binary: bool) -> String {
     };
 
     let formatted = match prefixed {
-        Standalone(s) => format!("{} B", s as u64),
-        Prefixed(p, s) => format!("{:.2} {}B", s, p),
+        Standalone(number) => format!("{} B", number as u64),
+        Prefixed(prefix, number) => format!("{:.2} {}B", number, prefix),
     };
 
     if binary {
@@ -101,6 +111,9 @@ fn format_size(size: u64, binary: bool) -> String {
 }
 
 fn main() {
+    #[cfg(windows)]
+    ansi_term::enable_ansi_support();
+
     let opt = Opt::from_args();
 
     let mut entries = Vec::new();
@@ -130,7 +143,7 @@ fn main() {
         let percentage = 100.0 * entry.size as f64 / total_size as f64;
         if let Some(p) = opt.minimum_percentage {
             if percentage < p {
-                 continue;
+                continue;
             }
         }
 
