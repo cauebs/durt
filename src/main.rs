@@ -1,5 +1,3 @@
-use std::error::Error;
-use std::io;
 use std::path::{Path, PathBuf};
 
 extern crate walkdir;
@@ -11,29 +9,35 @@ use structopt::clap::AppSettings::{ArgRequiredElseHelp, ColoredHelp, DeriveDispl
 use structopt::StructOpt;
 
 extern crate number_prefix;
-use number_prefix::{binary_prefix, decimal_prefix, Prefixed, Standalone};
 
-fn recursive_size(path: &Path) -> io::Result<u64> {
-    let mut total_size = 0;
+fn recursive_size(path: &Path) -> u64 {
+    WalkDir::new(path)
+        .into_iter()
+        .filter_map(|entry| {
+            let path = match &entry {
+                Ok(entry) => entry.path(),
+                Err(error) => {
+                    eprintln!("{}", error);
+                    return None;
+                }
+            };
 
-    for entry in WalkDir::new(path) {
-        let entry = entry?;
-        let path = entry.path();
+            // this avoids following symlinks
+            let size = match path.symlink_metadata() {
+                Ok(metadata) => metadata.len(),
+                Err(error) => {
+                    eprintln!("{}", error);
+                    return None;
+                }
+            };
 
-        // we need to avoid following symlinks here
-        let metadata = path.symlink_metadata()?;
-        let size = metadata.len();
-
-        total_size += size;
-    }
-
-    Ok(total_size)
+            Some(size)
+        })
+        .sum()
 }
 
 #[derive(StructOpt)]
-#[structopt(raw(
-    settings = "&[ColoredHelp, ArgRequiredElseHelp, DeriveDisplayOrder]",
-))]
+#[structopt(raw(settings = "&[ColoredHelp, ArgRequiredElseHelp, DeriveDisplayOrder]"))]
 struct Opt {
     /// Path to files or directories
     #[structopt(parse(from_os_str))]
@@ -76,12 +80,12 @@ struct Entry {
 }
 
 fn format_size(size: u64, binary: bool) -> String {
-    let size = size as f64;
+    use number_prefix::{binary_prefix, decimal_prefix, Prefixed, Standalone};
 
     let prefixed = if binary {
-        binary_prefix(size)
+        binary_prefix(size as f64)
     } else {
-        decimal_prefix(size)
+        decimal_prefix(size as f64)
     };
 
     let formatted = match prefixed {
@@ -90,22 +94,24 @@ fn format_size(size: u64, binary: bool) -> String {
     };
 
     if binary {
-        format!(" {:>10}", formatted)
+        format!("{:>10}", formatted)
     } else {
-        format!(" {:>9}", formatted)
+        format!("{:>9}", formatted)
     }
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() {
     let opt = Opt::from_args();
 
     let mut entries = Vec::new();
     let mut total_size = 0;
 
     for path in opt.paths {
-        let size = recursive_size(&path)?;
+        let size = recursive_size(&path);
         total_size += size;
-        entries.push(Entry { path, size });
+        if path.exists() {
+            entries.push(Entry { path, size });
+        };
     }
 
     if opt.sort {
@@ -120,15 +126,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         entries.reverse();
     }
 
-    for entry in entries.iter() {
+    for entry in entries {
         let percentage = 100.0 * entry.size as f64 / total_size as f64;
-
-        match opt.minimum_percentage {
-            Some(p) if percentage < p => continue,
-            _ => (),
+        if let Some(p) = opt.minimum_percentage {
+            if percentage < p {
+                 continue;
+            }
         }
 
-        print!("{}  ", format_size(entry.size, opt.use_binary_prefixes));
+        print!(" {}  ", format_size(entry.size, opt.use_binary_prefixes));
         if opt.show_percentages {
             print!("({})  ", format!("{:>5.2}%", percentage));
         }
@@ -136,9 +142,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     if opt.show_total {
-        println!(" {}", "-".repeat(if opt.use_binary_prefixes { 10 } else { 9 }));
-        println!("{}", format_size(total_size, opt.use_binary_prefixes));
+        println!(
+            " {}",
+            "-".repeat(if opt.use_binary_prefixes { 10 } else { 9 })
+        );
+        println!(" {}", format_size(total_size, opt.use_binary_prefixes));
     }
-
-    Ok(())
 }
