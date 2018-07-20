@@ -1,10 +1,8 @@
-# Based on the "trust" template v0.1.2
-# https://github.com/japaric/trust/tree/v0.1.2
-
 dist: trusty
-language: rust
-services: docker
 sudo: required
+services: docker
+
+language: rust
 
 env:
   global:
@@ -12,95 +10,44 @@ env:
 
 matrix:
   include:
-    # Android
-    # - env: TARGET=aarch64-linux-android DISABLE_TESTS=1
-    # - env: TARGET=arm-linux-androideabi DISABLE_TESTS=1
-    # - env: TARGET=armv7-linux-androideabi DISABLE_TESTS=1
-    # - env: TARGET=i686-linux-android DISABLE_TESTS=1
-    # - env: TARGET=x86_64-linux-android DISABLE_TESTS=1
-
-    # iOS
-    # - env: TARGET=aarch64-apple-ios DISABLE_TESTS=1
-    #   os: osx
-    # - env: TARGET=armv7-apple-ios DISABLE_TESTS=1
-    #   os: osx
-    # - env: TARGET=armv7s-apple-ios DISABLE_TESTS=1
-    #   os: osx
-    # - env: TARGET=i386-apple-ios DISABLE_TESTS=1
-    #   os: osx
-    # - env: TARGET=x86_64-apple-ios DISABLE_TESTS=1
-    #   os: osx
-
-    # Linux
-    - env: TARGET=aarch64-unknown-linux-gnu
-    - env: TARGET=arm-unknown-linux-gnueabi
-    - env: TARGET=armv7-unknown-linux-gnueabihf
-    - env: TARGET=i686-unknown-linux-gnu
-    - env: TARGET=i686-unknown-linux-musl
-    # - env: TARGET=mips-unknown-linux-gnu
-    # - env: TARGET=mips64-unknown-linux-gnuabi64
-    # - env: TARGET=mips64el-unknown-linux-gnuabi64
-    # - env: TARGET=mipsel-unknown-linux-gnu
-    # - env: TARGET=powerpc-unknown-linux-gnu
-    # - env: TARGET=powerpc64-unknown-linux-gnu
-    # - env: TARGET=powerpc64le-unknown-linux-gnu
-    # - env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
     - env: TARGET=x86_64-unknown-linux-gnu
     - env: TARGET=x86_64-unknown-linux-musl
 
-    # OSX
+    - env: TARGET=i686-unknown-linux-gnu
+    - env: TARGET=i686-unknown-linux-musl
+
+    - env: TARGET=x86_64-apple-darwin
+      os: osx
+
     - env: TARGET=i686-apple-darwin
       os: osx
-    - env: TARGET=x86_64-apple-darwin
-      os: osxaarch64
-
-    # *BSD
-    - env: TARGET=i686-unknown-freebsd DISABLE_TESTS=1
-    - env: TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
-    - env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
-
-    # Windows
-    - env: TARGET=x86_64-pc-windows-gnu
-
-    # Bare metal
-    # These targets don't support std and as such are likely not suitable for
-    # most crates.
-    # - env: TARGET=thumbv6m-none-eabi
-    # - env: TARGET=thumbv7em-none-eabi
-    # - env: TARGET=thumbv7em-none-eabihf
-    # - env: TARGET=thumbv7m-none-eabi
-
-    # Testing other channels
-    - env: TARGET=x86_64-unknown-linux-gnu
-      rust: nightly
-    - env: TARGET=x86_64-apple-darwin
-      os: osx
-      rust: nightly
 
 before_install:
-  - set -e
   - rustup self update
+  - rustup update
 
 install:
-  - sh ci/install.sh
-  - source ~/.cargo/env || true
+  - rustup target add $TARGET || true
+  - cargo install --force cross
 
 script:
-  - bash ci/script.sh
-
-after_script: set +e
+    - cross build --release --target $TARGET
 
 before_deploy:
-  - sh ci/before_deploy.sh
+  - export PACKAGE_NAME=$CRATE_NAME-$TRAVIS_TAG-$TARGET
+  - mkdir $PACKAGE_NAME
+  - cp target/$TARGET/release/$CRATE_NAME $PACKAGE_NAME
+  - cp README.md $PACKAGE_NAME
+  - cp LICENSE $PACKAGE_NAME
+  - tar czf $PACKAGE_NAME.tar.gz $PACKAGE_NAME
 
 deploy:
-  github-token: $GITHUB_TOKEN
-  file_glob: true
-  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
   on:
-    condition: $TRAVIS_RUST_VERSION = stable
     tags: true
+  file: $PACKAGE_NAME.tar.gz
   provider: releases
+  api-key:
+    secure: ZW/9Wda7U6K2Zyj/5gxkbJmzu5kQdT96OEBkue6lhsuIQ6isurWX0bmNgyT2INJF33AEgJ3mVjT/I/RfR2A+51ciC6J/3B3n0SR1wOZSyayYBE2rV/nawTpVN38rE3KInlNTaf6B3YNMK8XmZqO7y4Tasx8oxLsWoPSg66o4VAsg/ZX606iqlheXb8xO+HmX+vGF4yzs0MqorIwr60nt2PNBASWBabXXW9+iuglB4c2UM6/2PJMbgJJhalLq/n7RtwZYAktHOKiUBkpAcsKoJ1qQiRY2uXrk3RbsmZ8zY1CYLXtzDohcSpclKnYOEvpNcVTDnUVzT0ZwFKQheq7oIWLkcQgqjW701jwQpExHMNdElPtpxYuzVi5TlgEkDfhxZu/ccq+bv7SF28Tmk6ccmwbpIxPtVhOgmQsJ9TpaO1JcDB0F0Bn/WK550t9HZ/S3OVCeW65bmyfde+SaYa8qJj9JDrHkeQ/WI/76IATH+M0zW8iSTxcF3z4V9azC0Z1RP7oUghYcqsVybyqMfZUswZri/kexCLJRzqfBWtt99I2Fnr8eyghyjYWtDAyXGPVq3dZvdRq4PRdHPZDZKZ/MCdmC+o8UJBm2BL/npJZZvHhRsGX4ENRWcbDVpdd40XrqmqC1f/4oIbYUj0fLKjmLlfcku+gT5zwoRrdZQUo6rM0=
   skip_cleanup: true
 
 cache: cargo
@@ -113,7 +60,3 @@ branches:
     # release tags
     - /^v\d+\.\d+\.\d+.*$/
     - master
-
-notifications:
-  email:
-    on_success: never
