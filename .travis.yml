@@ -1,0 +1,62 @@
+dist: trusty
+sudo: required
+services: docker
+
+language: rust
+
+env:
+  global:
+    - CRATE_NAME=durt
+
+matrix:
+  include:
+    - env: TARGET=x86_64-unknown-linux-gnu
+    - env: TARGET=x86_64-unknown-linux-musl
+
+    - env: TARGET=i686-unknown-linux-gnu
+    - env: TARGET=i686-unknown-linux-musl
+
+    - env: TARGET=x86_64-apple-darwin
+      os: osx
+
+    - env: TARGET=i686-apple-darwin
+      os: osx
+
+before_install:
+  - rustup self update
+  - rustup update
+
+install:
+  - rustup target add $TARGET || true
+  - cargo install --force cross
+
+script:
+    - cross build --release --target $TARGET
+
+before_deploy:
+  - export PACKAGE_NAME=$CRATE_NAME-$TRAVIS_TAG-$TARGET
+  - mkdir $PACKAGE_NAME
+  - cp target/$TARGET/release/$CRATE_NAME $PACKAGE_NAME
+  - cp README.md $PACKAGE_NAME
+  - cp LICENSE $PACKAGE_NAME
+  - tar czf $PACKAGE_NAME.tar.gz $PACKAGE_NAME
+
+deploy:
+  on:
+    tags: true
+  file: $PACKAGE_NAME.tar.gz
+  provider: releases
+  api-key:
+    secure: ZW/9Wda7U6K2Zyj/5gxkbJmzu5kQdT96OEBkue6lhsuIQ6isurWX0bmNgyT2INJF33AEgJ3mVjT/I/RfR2A+51ciC6J/3B3n0SR1wOZSyayYBE2rV/nawTpVN38rE3KInlNTaf6B3YNMK8XmZqO7y4Tasx8oxLsWoPSg66o4VAsg/ZX606iqlheXb8xO+HmX+vGF4yzs0MqorIwr60nt2PNBASWBabXXW9+iuglB4c2UM6/2PJMbgJJhalLq/n7RtwZYAktHOKiUBkpAcsKoJ1qQiRY2uXrk3RbsmZ8zY1CYLXtzDohcSpclKnYOEvpNcVTDnUVzT0ZwFKQheq7oIWLkcQgqjW701jwQpExHMNdElPtpxYuzVi5TlgEkDfhxZu/ccq+bv7SF28Tmk6ccmwbpIxPtVhOgmQsJ9TpaO1JcDB0F0Bn/WK550t9HZ/S3OVCeW65bmyfde+SaYa8qJj9JDrHkeQ/WI/76IATH+M0zW8iSTxcF3z4V9azC0Z1RP7oUghYcqsVybyqMfZUswZri/kexCLJRzqfBWtt99I2Fnr8eyghyjYWtDAyXGPVq3dZvdRq4PRdHPZDZKZ/MCdmC+o8UJBm2BL/npJZZvHhRsGX4ENRWcbDVpdd40XrqmqC1f/4oIbYUj0fLKjmLlfcku+gT5zwoRrdZQUo6rM0=
+  skip_cleanup: true
+
+cache: cargo
+before_cache:
+  # Travis can't cache files that are not readable by "others"
+  - chmod -R a+r $HOME/.cargo
+
+branches:
+  only:
+    # release tags
+    - /^v\d+\.\d+\.\d+.*$/
+    - master
