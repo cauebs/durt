@@ -1,3 +1,6 @@
+<p align="center"><img src="src/design/horizontal.png" alt="durt" height="300px"></p>
+
+
 # durt
 Command line tool for calculating the size of files and directories
 
