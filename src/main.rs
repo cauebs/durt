@@ -97,5 +97,5 @@ fn main() {
         table.add_row(row);
     }
 
-    println!("{}", table);
+    print!("{}", table);
 }
