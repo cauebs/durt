@@ -39,7 +39,7 @@ dependencies = [
 
 [[package]]
 name = "durt"
-version = "0.5.2"
+version = "0.5.3"
 dependencies = [
  "ansi_term 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "number_prefix 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
