@@ -2,6 +2,7 @@ use structopt::StructOpt;
 use tabular::{Row, Table};
 
 use std::path::PathBuf;
+use wild;
 
 mod size;
 
@@ -17,7 +18,7 @@ fn main() {
     #[cfg(windows)]
     ansi_term::enable_ansi_support();
 
-    let cli = Cli::from_args();
+    let cli = Cli::from_iter(wild::args_os());
 
     let mut entries = cli
         .paths
