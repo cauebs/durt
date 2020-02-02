@@ -6,7 +6,7 @@ use structopt::{
 use std::path::PathBuf;
 
 #[derive(StructOpt)]
-#[structopt(raw(settings = "&[ColoredHelp, ArgRequiredElseHelp, DeriveDisplayOrder]"))]
+#[structopt(settings = &[ColoredHelp, ArgRequiredElseHelp, DeriveDisplayOrder])]
 pub struct Cli {
     /// Path to files or directories
     #[structopt(parse(from_os_str))]

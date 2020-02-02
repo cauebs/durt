@@ -1,5 +1,5 @@
 use ansi_term::Colour;
-use number_prefix::{binary_prefix, decimal_prefix, Prefixed, Standalone};
+use number_prefix::{NumberPrefix, Prefixed, Standalone};
 use walkdir::WalkDir;
 
 use std::path::Path;
@@ -32,18 +32,14 @@ pub fn measure_recursive(path: &Path) -> u64 {
         .sum()
 }
 
-pub fn format_decimal(size: u64) -> String {
-    let prefixed = decimal_prefix(size as f32);
-    format(prefixed)
-}
+pub fn format(size: u64, binary: bool) -> String {
+    let formatted = if binary {
+        NumberPrefix::binary(size as f64)
+    } else {
+        NumberPrefix::decimal(size as f64)
+    };
 
-pub fn format_binary(size: u64) -> String {
-    let prefixed = binary_prefix(size as f32);
-    format(prefixed)
-}
-
-fn format(prefixed: number_prefix::Result<f32>) -> String {
-    match prefixed {
+    match formatted {
         Standalone(number) => format!("{} B", number as u64),
         Prefixed(prefix, number) => format!("{:.2} {}B", number, prefix),
     }

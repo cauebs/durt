@@ -63,11 +63,7 @@ fn main() {
             }
         }
 
-        let formatted_size = if cli.use_binary_prefixes {
-            size::format_binary(entry.size)
-        } else {
-            size::format_decimal(entry.size)
-        };
+        let formatted_size = size::format(entry.size, cli.use_binary_prefixes);
 
         let mut row = Row::new().with_cell(formatted_size);
 
@@ -83,11 +79,7 @@ fn main() {
         let separator = "-".repeat(if cli.use_binary_prefixes { 10 } else { 9 });
         table.add_heading(" ".repeat(3) + &separator);
 
-        let formatted_total = if cli.use_binary_prefixes {
-            size::format_binary(total_size)
-        } else {
-            size::format_decimal(total_size)
-        };
+        let formatted_total = size::format(total_size, cli.use_binary_prefixes);
 
         let mut row = Row::new().with_cell(formatted_total);
         for _ in 0..table.column_count() - 1 {

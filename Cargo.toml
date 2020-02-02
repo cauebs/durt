@@ -1,6 +1,6 @@
 [package]
 edition = "2018"
-version = "0.5.3"
+version = "0.5.4"
 name = "durt"
 description = "Command line tool for calculating the size of files and directories"
 
@@ -13,9 +13,9 @@ keywords = ["cli", "file", "size", "disk", "usage"]
 categories = ["command-line-interface", "command-line-utilities", "filesystem"]
 
 [dependencies]
-structopt = "0.2.10"
-walkdir = "2.1.4"
-number_prefix = "0.2.8"
-ansi_term = "0.11.0"
-tabular = "0.1.2"
-wild = "2.0.1"
+structopt = "0.3.9"
+number_prefix = "0.3.0"
+ansi_term = "0.12.1"
+tabular = "0.1.4"
+wild = "2.0.2"
+walkdir = "2.3.1"
