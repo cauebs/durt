@@ -40,7 +40,10 @@ pub fn format(size: u64, binary: bool) -> String {
     };
 
     match formatted {
-        Standalone(number) => format!("{} B", number as u64),
+        Standalone(number) => {
+            let padding = if binary { "   " } else { "  " };
+            format!("{}{}B", number as u64, padding)
+        }
         Prefixed(prefix, number) => format!("{:.2} {}B", number, prefix),
     }
 }
