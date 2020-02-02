@@ -20,6 +20,11 @@ fn main() {
 
     let cli = Cli::from_iter(wild::args_os());
 
+    if cli.paths.is_empty() {
+        Cli::clap().print_help().unwrap();
+        return;
+    }
+
     let mut entries = cli
         .paths
         .into_iter()
