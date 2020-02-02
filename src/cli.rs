@@ -13,7 +13,7 @@ pub struct Cli {
     pub paths: Vec<PathBuf>,
 
     #[structopt(short = "b", long = "binary")]
-    /// Use binary prefixes (KiB, MiB, GiB, etc.)
+    /// Use binary prefixes (Ki, Mi, Gi, etc.) instead of decimal
     pub use_binary_prefixes: bool,
 
     #[structopt(short = "P", long = "percentage")]
