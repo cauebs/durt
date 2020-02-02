@@ -1,44 +1,42 @@
 use structopt::{
-    clap::AppSettings::{ArgRequiredElseHelp, ColoredHelp, DeriveDisplayOrder},
+    clap::AppSettings::{ColoredHelp, DeriveDisplayOrder},
     StructOpt,
 };
 
 use std::path::PathBuf;
 
 #[derive(StructOpt)]
-#[structopt(settings = &[ColoredHelp, ArgRequiredElseHelp, DeriveDisplayOrder])]
+#[structopt(settings = &[ColoredHelp, DeriveDisplayOrder])]
+/// Command line tool for calculating the size of files and directories
 pub struct Cli {
-    /// Path to files or directories
-    #[structopt(parse(from_os_str))]
+    /// Paths to files or directories. Use wildcards for recursion
     pub paths: Vec<PathBuf>,
 
-    /// Use binary prefixes (KiB, MiB, GiB, etc).
-    /// {n}(Sizes will be divided by 1024 instead of 1000)
     #[structopt(short = "b", long = "binary")]
+    /// Use binary prefixes (KiB, MiB, GiB, etc.)
     pub use_binary_prefixes: bool,
 
-    /// Show each item's percentage, relative to the total.
     #[structopt(short = "P", long = "percentage")]
+    /// Show each entry's percentage relative to the total
     pub show_percentages: bool,
 
-    /// Don't show items smaller than this.
-    #[structopt(short = "m", long = "min")]
+    #[structopt(short, long = "min")]
+    /// Ommit entries with size less than this
     pub minimum_percentage: Option<f64>,
 
-    /// Print the total at the end.
     #[structopt(short = "t", long = "total")]
+    /// Print the sum of all sizes at the end
     pub show_total: bool,
 
-    /// Print lines in ascending order.
-    /// {n}(If --by-path is not passed, the size will be used)
-    #[structopt(short = "s", long = "sort")]
+    #[structopt(short, long)]
+    /// Print entries in ascending order of size
     pub sort: bool,
 
-    /// Sort the output lines by path, instead of by size.
     #[structopt(short = "p", long = "by-path")]
+    /// Sort by path instead of by size
     pub sort_by_path: bool,
 
-    /// Reverse the order of the output lines.
-    #[structopt(short = "r", long = "reverse")]
+    #[structopt(short, long = "reverse")]
+    /// Reverse the order of the entries
     pub reverse_order: bool,
 }
