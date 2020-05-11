@@ -1,42 +1,42 @@
-use structopt::{
-    clap::AppSettings::{ColoredHelp, DeriveDisplayOrder},
-    StructOpt,
+use clap::{
+    AppSettings::{ColoredHelp, DeriveDisplayOrder},
+    Clap,
 };
 
 use std::path::PathBuf;
 
-#[derive(StructOpt)]
-#[structopt(settings = &[ColoredHelp, DeriveDisplayOrder])]
+#[derive(Clap)]
+#[clap(setting = ColoredHelp, setting = DeriveDisplayOrder)]
 /// Command line tool for calculating the size of files and directories
 pub struct Cli {
     /// Paths to files or directories. Use wildcards for recursion
     pub paths: Vec<PathBuf>,
 
-    #[structopt(short = "b", long = "binary")]
+    #[clap(short = "b", long = "binary")]
     /// Use binary prefixes (Ki, Mi, Gi, etc.) instead of decimal
     pub use_binary_prefixes: bool,
 
-    #[structopt(short = "P", long = "percentage")]
+    #[clap(short = "P", long = "percentage")]
     /// Show each entry's percentage relative to the total
     pub show_percentages: bool,
 
-    #[structopt(short, long = "min")]
+    #[clap(short, long = "min")]
     /// Ommit entries with size less than this
     pub minimum_percentage: Option<f64>,
 
-    #[structopt(short = "t", long = "total")]
+    #[clap(short = "t", long = "total")]
     /// Print the sum of all sizes at the end
     pub show_total: bool,
 
-    #[structopt(short, long)]
+    #[clap(short, long)]
     /// Print entries in ascending order of size
     pub sort: bool,
 
-    #[structopt(short = "p", long = "by-path")]
+    #[clap(short = "p", long = "by-path")]
     /// Sort by path instead of by size
     pub sort_by_path: bool,
 
-    #[structopt(short, long = "reverse")]
+    #[clap(short, long = "reverse")]
     /// Reverse the order of the entries
     pub reverse_order: bool,
 }

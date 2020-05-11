@@ -1,5 +1,5 @@
 use ansi_term::Colour;
-use number_prefix::{NumberPrefix, Prefixed, Standalone};
+use number_prefix::NumberPrefix;
 use walkdir::WalkDir;
 
 use std::path::Path;
@@ -40,10 +40,10 @@ pub fn format(size: u64, binary: bool) -> String {
     };
 
     match formatted {
-        Standalone(number) => {
+        NumberPrefix::Standalone(number) => {
             let padding = if binary { "   " } else { "  " };
             format!("{}{}B", number as u64, padding)
         }
-        Prefixed(prefix, number) => format!("{:.2} {}B", number, prefix),
+        NumberPrefix::Prefixed(prefix, number) => format!("{:.2} {}B", number, prefix),
     }
 }

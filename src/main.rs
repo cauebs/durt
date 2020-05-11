@@ -1,4 +1,4 @@
-use structopt::StructOpt;
+use clap::{Clap, IntoApp};
 use tabular::{Row, Table};
 
 use std::path::PathBuf;
@@ -18,10 +18,10 @@ fn main() {
     #[cfg(windows)]
     ansi_term::enable_ansi_support();
 
-    let cli = Cli::from_iter(wild::args_os());
+    let cli = Cli::parse_from(wild::args_os());
 
     if cli.paths.is_empty() {
-        Cli::clap().print_help().unwrap();
+        Cli::into_app().print_help().unwrap();
         return;
     }
 
