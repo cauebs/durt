@@ -1,0 +1,54 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-linux-gnu
+          - x86_64-unknown-linux-musl
+
+    name: ${{ matrix.target }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          profile: minimal
+          target: ${{ matrix.target }}
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --locked --target=${{ matrix.target }}
+
+      - name: Package
+        env:
+          PACKAGE_NAME: durt-${{ matrix.target }}
+        run: |
+          mkdir $PACKAGE_NAME
+          cp target/${{ matrix.target }}/release/durt $PACKAGE_NAME
+          cp LICENSE $PACKAGE_NAME
+          cp README.md $PACKAGE_NAME
+          tar caf $PACKAGE_NAME.tar.gz $PACKAGE_NAME
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: durt-${{ matrix.target }}.tar.gz
