@@ -1,13 +1,12 @@
 use clap::{Clap, IntoApp};
 use tabular::{Row, Table};
-
-use std::path::PathBuf;
 use wild;
 
-mod size;
+use std::path::PathBuf;
 
 mod cli;
 use cli::Cli;
+mod size;
 
 struct Entry {
     path: PathBuf,
@@ -28,14 +27,7 @@ fn main() {
     let mut entries = cli
         .paths
         .into_iter()
-        .filter_map(|path| {
-            if !path.exists() {
-                None
-            } else {
-                let size = size::measure_recursive(&path);
-                Some(Entry { path, size })
-            }
-        })
+        .filter_map(|path| size::measure_recursive(&path).map(|size| Entry { path, size }))
         .collect::<Vec<_>>();
 
     if cli.sort {
