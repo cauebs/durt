@@ -24,7 +24,10 @@ fn main() {
     {
         entries = if cli.same_fs {
             let mut all_entries = all_entries.peekable();
-            let first_fs = all_entries.peek().unwrap().filesystem_id;
+            let first_fs = match all_entries.peek() {
+                Some(first) => first.filesystem_id,
+                None => return,
+            };
 
             all_entries
                 .filter(|e| e.filesystem_id == first_fs)
