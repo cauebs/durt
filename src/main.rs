@@ -58,12 +58,14 @@ fn main() {
     };
 
     let total_size = entries.iter().map(|e| e.size).sum();
+    let mut omitted_entries = 0;
 
     for entry in entries {
         let percentage = entry.size as f64 / total_size as f64 * 100.0;
 
         if let Some(m) = cli.minimum_percentage {
             if percentage < m {
+                omitted_entries += 1;
                 continue;
             }
         }
@@ -79,9 +81,31 @@ fn main() {
         table.add_row(row);
     }
 
+    if omitted_entries > 0 {
+        let mut row = Row::new().with_cell("");
+
+        if cli.show_percentages {
+            row.add_cell("");
+        }
+
+        row.add_cell(if omitted_entries == 1 {
+            format!("({} entry omitted)", omitted_entries)
+        } else {
+            format!("({} entries omitted)", omitted_entries)
+        });
+
+        table.add_row(row);
+    }
+
     if cli.show_total {
         let separator = "-".repeat(if cli.use_binary_prefixes { 10 } else { 9 });
-        table.add_heading(format!(" {}", separator));
+        let mut row = Row::new().with_cell(separator);
+
+        if cli.show_percentages {
+            row.add_cell("");
+        }
+
+        table.add_row(row.with_cell(""));
 
         let formatted_total = format_size(total_size, cli.use_binary_prefixes);
         let mut row = Row::new().with_cell(formatted_total);
