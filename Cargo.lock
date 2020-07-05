@@ -60,7 +60,7 @@ dependencies = [
 
 [[package]]
 name = "durt"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "ansi_term 0.12.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 3.0.0-beta.1 (registry+https://github.com/rust-lang/crates.io-index)",
