@@ -81,7 +81,7 @@ fn main() {
 
     if cli.show_total {
         let separator = "-".repeat(if cli.use_binary_prefixes { 10 } else { 9 });
-        table.add_heading(" ".repeat(2) + &separator);
+        table.add_heading(format!(" {}", separator));
 
         let formatted_total = format_size(total_size, cli.use_binary_prefixes);
         let mut row = Row::new().with_cell(formatted_total);
