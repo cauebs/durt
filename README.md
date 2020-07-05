@@ -14,24 +14,21 @@ Command line tool for calculating the size of files and directories
 USAGE:
     durt [FLAGS] [OPTIONS] [paths]...
 
+ARGS:
+    <paths>...    Paths to files or directories. Use wildcards for recursion
+
 FLAGS:
-    -b, --binary        Use binary prefixes (KiB, MiB, GiB, etc).
-                        (Sizes will be divided by 1024 instead of 1000)
-    -P, --percentage    Show each item's percentage, relative to the total.
-    -t, --total         Print the total at the end.
-    -s, --sort          Print lines in ascending order.
-                        (If --by-path is not passed, the size will be used)
-    -p, --by-path       Sort the output lines by path, instead of by size.
-    -r, --reverse       Reverse the order of the output lines.
+    -b, --binary        Use binary prefixes (Ki, Mi, Gi, etc.) instead of decimal
+    -P, --percentage    Show each entry's percentage relative to the total
+    -t, --total         Print the sum of all sizes at the end
+    -s, --sort          Print entries in ascending order of size
+    -p, --by-path       Sort by path instead of by size
+    -r, --reverse       Reverse the order of the entries
     -h, --help          Prints help information
     -V, --version       Prints version information
 
 OPTIONS:
-    -m, --min <minimum_percentage>    Don't show items smaller than this.
-
-ARGS:
-    <paths>...    Path to files or directories
-
+    -m, --min <minimum-percentage>    Omit entries with size less than this
 ```
 
 ## Example
@@ -43,7 +40,6 @@ ARGS:
     35.15 kB  LICENSE
     56.01 kB  src
    173.56 MB  target
-  ---------
+   ---------
    173.66 MB
-
 ```
