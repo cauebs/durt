@@ -24,12 +24,15 @@ FLAGS:
     -s, --sort          Print entries in ascending order of size
     -p, --by-path       Sort by path instead of by size
     -r, --reverse       Reverse the order of the entries
+    -f, --same-fs       Ignore entries from filesystems different from that of the first path passed
     -h, --help          Prints help information
     -V, --version       Prints version information
 
 OPTIONS:
     -m, --min <minimum-percentage>    Omit entries with size less than this
 ```
+
+At this time `--same-fs` is not available on Windows.
 
 ## Example
 ```

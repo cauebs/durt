@@ -39,4 +39,9 @@ pub struct Cli {
     #[clap(short, long = "reverse")]
     /// Reverse the order of the entries
     pub reverse_order: bool,
+
+    #[cfg(unix)]
+    #[clap(short = "f", long)]
+    /// Ignore entries from filesystems different from that of the first path passed
+    pub same_fs: bool,
 }

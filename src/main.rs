@@ -2,20 +2,13 @@ use clap::{Clap, IntoApp};
 use tabular::{Row, Table};
 use wild;
 
-use std::path::PathBuf;
-
 mod cli;
 use cli::Cli;
-mod size;
-
-struct Entry {
-    path: PathBuf,
-    size: u64,
-}
+use durt::{format_size, Entry};
 
 fn main() {
     #[cfg(windows)]
-    ansi_term::enable_ansi_support();
+    ansi_term::enable_ansi_support().expect("Failed to enable ANSI support.");
 
     let cli = Cli::parse_from(wild::args_os());
 
@@ -24,11 +17,27 @@ fn main() {
         return;
     }
 
-    let mut entries = cli
-        .paths
-        .into_iter()
-        .filter_map(|path| size::measure_recursive(&path).map(|size| Entry { path, size }))
-        .collect::<Vec<_>>();
+    let all_entries = cli.paths.iter().filter_map(|path| Entry::from_path(&path));
+    let mut entries: Vec<Entry>;
+
+    #[cfg(unix)]
+    {
+        entries = if cli.same_fs {
+            let mut all_entries = all_entries.peekable();
+            let first_fs = all_entries.peek().unwrap().filesystem_id;
+
+            all_entries
+                .filter(|e| e.filesystem_id == first_fs)
+                .collect()
+        } else {
+            all_entries.collect()
+        };
+    }
+
+    #[cfg(not(unix))]
+    {
+        entries = all_entries.collect::<Vec<_>>();
+    }
 
     if cli.sort {
         if cli.sort_by_path {
@@ -59,7 +68,7 @@ fn main() {
             }
         }
 
-        let formatted_size = size::format(entry.size, cli.use_binary_prefixes);
+        let formatted_size = format_size(entry.size, cli.use_binary_prefixes);
         let mut row = Row::new().with_cell(formatted_size);
 
         if cli.show_percentages {
@@ -74,7 +83,7 @@ fn main() {
         let separator = "-".repeat(if cli.use_binary_prefixes { 10 } else { 9 });
         table.add_heading(" ".repeat(2) + &separator);
 
-        let formatted_total = size::format(total_size, cli.use_binary_prefixes);
+        let formatted_total = format_size(total_size, cli.use_binary_prefixes);
         let mut row = Row::new().with_cell(formatted_total);
 
         if cli.show_percentages {
