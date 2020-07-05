@@ -21,7 +21,7 @@ pub struct Cli {
     pub show_percentages: bool,
 
     #[clap(short, long = "min")]
-    /// Ommit entries with size less than this
+    /// Omit entries with size less than this
     pub minimum_percentage: Option<f64>,
 
     #[clap(short = "t", long = "total")]
