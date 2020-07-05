@@ -35,7 +35,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          use-cross: startWith($${{ matrix.target }}, 'x86') != true
+          use-cross: true
           args: --release --locked --target=${{ matrix.target }}
 
       - name: Package
