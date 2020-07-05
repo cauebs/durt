@@ -11,18 +11,21 @@ use std::{
 use std::os::unix::fs::MetadataExt;
 
 trait ResultExt<T, E: Display> {
-    fn log_err(self) -> Result<T, E>;
+    fn log_err(self, path: Option<&Path>) -> Result<T, E>;
 }
 
-fn log_err<E: Display>(error: &E) {
-    let message = Colour::Red.paint(format!("{}", error));
-    eprintln!("{}", message);
+fn log_err<E: Display>(path: Option<&Path>, error: &E) {
+    let message = match path {
+        Some(path) => format!("{}: {}", path.display(), error),
+        None => format!("{}", error),
+    };
+    eprintln!("{}", Colour::Red.paint(message));
 }
 
 impl<T, E: Display> ResultExt<T, E> for Result<T, E> {
-    fn log_err(self) -> Result<T, E> {
+    fn log_err(self, path: Option<&Path>) -> Result<T, E> {
         self.map_err(|error| {
-            log_err(&error);
+            log_err(path, &error);
             error
         })
     }
@@ -38,21 +41,23 @@ pub struct Entry {
 
 impl Entry {
     pub fn from_path(path: &Path) -> Option<Entry> {
-        if !path.exists() {
-            let message = format!("No such file or directory: {}", path.display());
-            log_err(&message);
-            return None;
-        }
-
         #[cfg(unix)]
-        let metadata = path.symlink_metadata().log_err().ok()?;
+        let metadata = path.symlink_metadata().log_err(Some(path)).ok()?;
 
-        let children = WalkDir::new(path)
-            .into_iter()
-            .filter_map(|entry| entry.log_err().ok());
+        let children = WalkDir::new(path).into_iter().filter_map(|entry| {
+            entry
+                .map_err(|error| {
+                    if let Some(path) = error.path() {
+                        log_err(Some(path), &error);
+                    } else {
+                        log_err(None, &error);
+                    }
+                })
+                .ok()
+        });
 
         let size = children
-            .filter_map(|entry| entry.metadata().log_err().ok())
+            .filter_map(|entry| entry.metadata().log_err(Some(entry.path())).ok())
             .map(|metadata| metadata.len())
             .sum();
 
