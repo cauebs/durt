@@ -16,6 +16,6 @@ categories = ["command-line-interface", "command-line-utilities", "filesystem"]
 number_prefix = "0.4.0"
 ansi_term = "0.12.1"
 tabular = "0.1.4"
-wild = "2.0.2"
+wild = "2.0.4"
 walkdir = "2.3.1"
 clap = "3.0.0-beta.1"
