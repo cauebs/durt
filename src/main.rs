@@ -4,7 +4,7 @@ use wild;
 
 mod cli;
 use cli::Cli;
-use durt::{format_size, Entry};
+use durt::{calculate_unique_total_size, format_size, Entry};
 
 fn main() {
     #[cfg(windows)]
@@ -60,7 +60,7 @@ fn main() {
         Table::new("  {:>}  {:<}")
     };
 
-    let total_size = entries.iter().map(|e| e.size).sum();
+    let total_size = calculate_unique_total_size(&entries);
     let mut omitted_entries = 0;
 
     for entry in entries {
