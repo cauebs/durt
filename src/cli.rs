@@ -1,4 +1,5 @@
 use clap::{
+    crate_authors, crate_version,
     AppSettings::{ColoredHelp, DeriveDisplayOrder},
     Clap,
 };
@@ -6,6 +7,7 @@ use clap::{
 use std::path::PathBuf;
 
 #[derive(Clap)]
+#[clap(version = crate_version!(), author = crate_authors!())]
 #[clap(setting = ColoredHelp, setting = DeriveDisplayOrder)]
 /// Command line tool for calculating the size of files and directories
 pub struct Cli {
