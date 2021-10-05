@@ -1,6 +1,6 @@
 [package]
 edition = "2018"
-version = "1.0.1"
+version = "1.0.2"
 name = "durt"
 description = "Command line tool for calculating the size of files and directories"
 
@@ -18,4 +18,4 @@ ansi_term = "0.12.1"
 tabular = "0.1.4"
 wild = "2.0.4"
 walkdir = "2.3.1"
-clap = { version="3.0.0-beta.2" }
+clap = "=3.0.0-beta.4"
