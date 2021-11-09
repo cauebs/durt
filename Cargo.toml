@@ -18,4 +18,4 @@ ansi_term = "0.12.1"
 tabular = "0.1.4"
 wild = "2.0.4"
 walkdir = "2.3.1"
-clap = "=3.0.0-beta.4"
+clap = { version = "=3.0.0-beta.5", features = ["derive", "color", "suggestions"] }

@@ -1,14 +1,10 @@
-use clap::{
-    crate_authors, crate_version,
-    AppSettings::{ColoredHelp, DeriveDisplayOrder},
-    Clap,
-};
+use clap::{crate_authors, crate_version, AppSettings::DeriveDisplayOrder, Parser};
 
 use std::path::PathBuf;
 
-#[derive(Clap)]
+#[derive(Parser)]
 #[clap(version = crate_version!(), author = crate_authors!())]
-#[clap(setting = ColoredHelp, setting = DeriveDisplayOrder)]
+#[clap(setting = DeriveDisplayOrder)]
 /// Command line tool for calculating the size of files and directories
 pub struct Cli {
     /// Paths to files or directories. Use wildcards for recursion

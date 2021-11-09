@@ -1,4 +1,4 @@
-use clap::{Clap, IntoApp};
+use clap::{IntoApp, Parser};
 use tabular::{Row, Table};
 use wild;
 
